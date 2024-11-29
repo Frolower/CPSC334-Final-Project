@@ -15,7 +15,7 @@ Desktop.ini
 *.sublime-project
 
 # Ignore dependency directories
-node_modules/
+frontend/ariadne-management/node_modules
 vendor/
 
 # Ignore build directories
