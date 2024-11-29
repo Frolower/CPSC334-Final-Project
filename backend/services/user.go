@@ -20,8 +20,8 @@ func CreateUser(db *sql.DB, user *models.User) error {
 	user.Password = string(hashedPassword)
 
 	// Insert user into DB
-	query := `INSERT INTO users (username, password) VALUES ($1, $2)`
-	result, err = db.Exec(query, user.Username, user.Password)
+	query := `INSERT INTO users (username, email, password) VALUES ($1, $2, $3)`
+	result, err = db.Exec(query, user.Username, user.Email, user.Password)
 	log.Println(result)
 	return err
 }

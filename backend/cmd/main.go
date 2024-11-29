@@ -58,6 +58,7 @@ func main() {
 
 	// Register routes
 	r.POST("/register", routers.RegisterUser(db))
+	r.POST("/createTeam", routers.CreateTeam(db))
 
 	// Run the server on port 8080
 	r.Run(":8080")
