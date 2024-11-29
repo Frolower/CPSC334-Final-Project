@@ -5,7 +5,7 @@ import (
 	servicies "Ariadne_Management/services"
 	"database/sql"
 	"github.com/gin-gonic/gin"
-	_ "github.com/lib/pq" // Import pq for PostgreSQL support
+	_ "github.com/lib/pq"
 	"log"
 	"net/http"
 )

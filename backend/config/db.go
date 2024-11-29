@@ -1,5 +1,3 @@
-// /config/db.go
-
 package config
 
 import (
