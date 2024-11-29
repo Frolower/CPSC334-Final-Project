@@ -9,6 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+
+	routers "Ariadne_Management/routers"
 )
 
 func main() {
@@ -55,7 +57,7 @@ func main() {
 	r := gin.Default()
 
 	// Register routes
-	//r.POST("/register", controllers.RegisterUser(db))
+	r.POST("/register", routers.RegisterUser(db))
 
 	// Run the server on port 8080
 	r.Run(":8080")
