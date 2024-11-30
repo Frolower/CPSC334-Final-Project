@@ -1,16 +1,16 @@
 package main
 
 import (
+	routers "Ariadne_Management/routers"
 	"database/sql"
 	"fmt"
 	"log"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-
-	routers "Ariadne_Management/routers"
 )
 
 func main() {
@@ -56,9 +56,13 @@ func main() {
 	// Initialize the Gin router
 	r := gin.Default()
 
+	// Enable CORS for all routes
+	r.Use(cors.Default()) // This allows all domains, you can customize it as needed
+
 	// Register routes
 	r.POST("/register", routers.RegisterUser(db))
 	r.POST("/createTeam", routers.CreateTeam(db))
+	r.POST("/login", routers.LoginUser(db))
 
 	// Run the server on port 8080
 	r.Run(":8080")

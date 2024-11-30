@@ -23,3 +23,28 @@ func CreateUser(db *sql.DB, user *models.User) error {
 	log.Println(result)
 	return err
 }
+
+func VerifyUserLogIn(db *sql.DB, user *models.User) (bool, error) {
+	var hashedPassword string
+
+	query := `SELECT password FROM users WHERE username = $1`
+	result, err := db.Query(query, user.Username)
+	if err != nil {
+		log.Println(err)
+		return false, err
+	}
+
+	result.Next()
+	err = result.Scan(&hashedPassword) // Transfer password from *Rows into a string
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	if bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(user.Password)) != nil {
+		log.Println("Passwords do not match")
+		log.Println(err)
+		return false, err
+	}
+	return true, err
+}

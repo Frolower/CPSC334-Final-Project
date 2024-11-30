@@ -2,38 +2,63 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
-function LoginPage() {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const { login } = useAuth();
+const LoginPage = () => {
+    const { login, error, loading } = useAuth(); // Get login function from context
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const [formData, setFormData] = useState({
+        username: '',
+        password: '',
+    });
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        login(username, password);
-        navigate('/dashboard'); // Redirect if auth successful
+
+        // Use the login function from AuthContext
+        await login(formData);
+
+        // If login is successful, redirect to dashboard
+        if (!error) {
+            navigate('/dashboard');
+        }
     };
 
     return (
         <div>
-            <h1>Login</h1>
+            <h2>Login</h2>
             <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                <button type="submit">Login</button>
+                <div>
+                    <label>Username</label>
+                    <input
+                        type="text"
+                        name="username"
+                        value={formData.username}
+                        onChange={handleChange}
+                    />
+                </div>
+                <div>
+                    <label>Password</label>
+                    <input
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                    />
+                </div>
+                {error && <div>{error}</div>} {/* Show error message if login failed */}
+                {loading && <div>Loading...</div>} {/* Show loading indicator */}
+                <button type="submit" disabled={loading}>Login</button>
             </form>
         </div>
     );
-}
+};
 
 export default LoginPage;
