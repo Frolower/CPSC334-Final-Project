@@ -3,13 +3,13 @@ package services
 import (
 	"Ariadne_Management/models"
 	"database/sql"
+	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 )
 
 // CreateUser handles user registration logic
 func CreateUser(db *sql.DB, user *models.User) error {
-	var result sql.Result
 	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -17,10 +17,12 @@ func CreateUser(db *sql.DB, user *models.User) error {
 	}
 	user.Password = string(hashedPassword)
 
+	fmt.Println(user.FirstName)
+	fmt.Println(user.LastName)
+
 	// Insert user into DB
-	query := `INSERT INTO users (username, email, password) VALUES ($1, $2, $3)`
-	result, err = db.Exec(query, user.Username, user.Email, user.Password)
-	log.Println(result)
+	query := `INSERT INTO users (username, email, first_name, last_name, password) VALUES ($1, $2, $3, $4, $5)`
+	_, err = db.Exec(query, user.Username, user.Email, user.FirstName, user.LastName, user.Password)
 	return err
 }
 

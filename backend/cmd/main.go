@@ -60,7 +60,7 @@ func main() {
 	r.Use(cors.Default()) // This allows all domains, you can customize it as needed
 
 	// Register routes
-	r.POST("/register", routers.RegisterUser(db))
+	r.POST("/signup", routers.RegisterUser(db))
 	r.POST("/createTeam", routers.CreateTeam(db))
 	r.POST("/login", routers.LoginUser(db))
 
