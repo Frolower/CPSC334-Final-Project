@@ -4,14 +4,10 @@ import (
 	"Ariadne_Management/models"
 	servicies "Ariadne_Management/services"
 	"database/sql"
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 	_ "github.com/lib/pq"
 	"log"
 	"net/http"
-	"strconv"
-	"time"
 )
 
 // RegisterUser handles the user registration logic
@@ -42,7 +38,7 @@ func RegisterUser(db *sql.DB) gin.HandlerFunc {
 		user.ID = userID
 
 		// Generate a JWT token for the newly created user
-		token, err := generateJWT(&user)
+		token, err := servicies.GenerateJWT(&user)
 		if err != nil {
 			log.Printf("Error generating JWT: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating JWT token"})
@@ -55,54 +51,6 @@ func RegisterUser(db *sql.DB) gin.HandlerFunc {
 			"token":   token,
 		})
 	}
-}
-
-// generateJWT generates a JWT token for a user
-func generateJWT(user *models.User) (string, error) {
-	// Define token expiration time
-	expirationTime := time.Now().Add(1 * time.Hour)
-
-	// Create the JWT claims, including user ID in the claims
-	claims := &jwt.RegisteredClaims{
-		Subject:   user.Username,
-		ID:        strconv.Itoa(user.ID),
-		ExpiresAt: jwt.NewNumericDate(expirationTime),
-		IssuedAt:  jwt.NewNumericDate(time.Now()),
-	}
-
-	// Create a new JWT token using the claims
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	// Sign the token using your secret key
-	signedToken, err := token.SignedString([]byte("yourSecretKey"))
-	if err != nil {
-		return "", err
-	}
-	return signedToken, nil
-}
-
-func extractUserIDFromToken(tokenString string) (int, error) {
-	// Parse and validate the JWT token
-	token, err := jwt.ParseWithClaims(tokenString, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte("yourSecretKey"), nil
-	})
-	if err != nil {
-		return 0, err
-	}
-
-	// Extract claims
-	claims, ok := token.Claims.(*jwt.RegisteredClaims)
-	if !ok || !token.Valid {
-		return 0, fmt.Errorf("invalid token")
-	}
-
-	// Extract the user ID from the 'jti' field
-	userID, err := strconv.Atoi(claims.ID)
-	if err != nil {
-		return 0, fmt.Errorf("invalid user ID in token")
-	}
-
-	return userID, nil
 }
 
 // LoginUser handles user login, verifying credentials and generating a JWT token
@@ -139,7 +87,7 @@ func LoginUser(db *sql.DB) gin.HandlerFunc {
 		user.ID = userID // Assign the fetched ID to the user struct
 
 		// If status is true, generate a JWT token
-		token, err := generateJWT(&user)
+		token, err := servicies.GenerateJWT(&user)
 		if err != nil {
 			log.Printf("Error generating JWT: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating JWT token"})

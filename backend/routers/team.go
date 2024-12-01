@@ -28,3 +28,28 @@ func CreateTeam(db *sql.DB) gin.HandlerFunc {
 		c.JSON(http.StatusOK, gin.H{"message": "Team created successfully"})
 	}
 }
+
+// GetUserTeams handles the GET request to fetch teams for the logged-in user
+func GetUserTeams(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Extract the token from the request header
+		tokenString := c.GetHeader("Authorization")
+		userID, err := servicies.ExtractUserIDFromToken(tokenString) // extractUserIDFromToken is a function to decode the JWT
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			return
+		}
+
+		// Fetch teams for the user from the database
+		teams, err := servicies.GetTeamsByUserID(db, userID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching teams"})
+			return
+		}
+
+		// Return the list of teams
+		c.JSON(http.StatusOK, gin.H{
+			"teams": teams,
+		})
+	}
+}
