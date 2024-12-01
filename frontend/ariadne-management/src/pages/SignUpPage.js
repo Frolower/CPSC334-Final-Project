@@ -72,10 +72,11 @@ const SignUpPage = () => {
             const data = await response.json();
 
             if (response.ok) {
-                // If signup is successful, log the user in
+                // If signup is successful, log the user in with the returned token
                 await login({
                     username: formData.username,
                     password: formData.password,
+                    token: data.token,  // Pass the token received from backend
                 });
 
                 // Redirect to the dashboard

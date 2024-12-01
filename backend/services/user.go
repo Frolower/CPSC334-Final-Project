@@ -50,3 +50,14 @@ func VerifyUserLogIn(db *sql.DB, user *models.User) (bool, error) {
 	}
 	return true, err
 }
+
+// GetUserIDByUsername retrieves the user ID by their username.
+func GetUserIDByUsername(db *sql.DB, username string) (int, error) {
+	var userID int
+	err := db.QueryRow(`SELECT user_id FROM users WHERE username = $1`, username).Scan(&userID)
+	if err != nil {
+		log.Printf("Error fetching user ID for username %s: %v", username, err)
+		return 0, err
+	}
+	return userID, nil
+}

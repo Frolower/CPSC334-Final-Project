@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext();
 
@@ -8,6 +8,15 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    // Load user from local storage if available
+    useEffect(() => {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            // Use the token to fetch user data or just mark as logged in
+            setUser({ token });
+        }
+    }, []);
 
     // Verifying user login
     const login = async (credentials) => {
@@ -20,14 +29,18 @@ export const AuthProvider = ({ children }) => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(credentials), // Send user credentials (username, password)
+                body: JSON.stringify({
+                    username: credentials.username,
+                    password: credentials.password,
+                }),
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                // If login is successful
-                setUser({ username: data.username });  // Save user details in context
+                // If login is successful, store the token in localStorage
+                localStorage.setItem('authToken', data.token);
+                setUser({ username: credentials.username, token: data.token });
             } else {
                 // If login fails
                 setError(data.message || 'Login failed');
@@ -41,6 +54,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
+        localStorage.removeItem('authToken');
         setUser(null);
     };
 

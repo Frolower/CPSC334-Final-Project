@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const LoginPage = () => {
-    const { login, error, loading } = useAuth(); // Get login function from context
+    const { login, error, loading } = useAuth(); // Get login function and states from context
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
@@ -11,6 +11,7 @@ const LoginPage = () => {
         password: '',
     });
 
+    // Handle input changes
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
@@ -19,6 +20,7 @@ const LoginPage = () => {
         }));
     };
 
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
 
