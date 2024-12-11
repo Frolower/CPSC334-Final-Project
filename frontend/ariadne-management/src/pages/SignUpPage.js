@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext'; // Import the AuthContext hook
+import "../css/Auth.scss"
 
 const SignUpPage = () => {
     const navigate = useNavigate();
@@ -94,66 +95,83 @@ const SignUpPage = () => {
 
     return (
         <div>
-            <h2>Create Account</h2>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Username</label>
-                    <input
-                        type="text"
-                        name="username"
-                        value={formData.username}
-                        onChange={handleChange}
-                    />
+            <nav>
+                <Link className={"link"} to={"/"}>
+                    <h2 className={"logo"}>
+                        Ariadne Management
+                    </h2>
+                </Link>
+            </nav>
+            <div className={"content"}>
+                <div className={"form-container"}>
+                    <h2>Create Account</h2>
+                    <form onSubmit={handleSubmit}>
+                        <div className={"input-content"}>
+                            <label>Username</label>
+                            <input
+                                className={"form-input"}
+                                type="text"
+                                name="username"
+                                value={formData.username}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        <div className={"input-content"}>
+                            <label>Email</label>
+                            <input
+                                className={"form-input"}
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        <div className={"input-content"}>
+                            <label>First name</label>
+                            <input
+                                className={"form-input"}
+                                type="text"
+                                name="first_name"
+                                value={formData.first_name}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        <div className={"input-content"}>
+                            <label>Last name</label>
+                            <input
+                                className={"form-input"}
+                                type="text"
+                                name="last_name"
+                                value={formData.last_name}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        <div className={"input-content"}>
+                            <label>Password</label>
+                            <input
+                                className={"form-input"}
+                                type="password"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        <div className={"input-content"}>
+                            <label>Confirm Password</label>
+                            <input
+                                className={"form-input"}
+                                type="password"
+                                name="confirmPassword"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        {error && <div>{error}</div>} {/* Show error message */}
+                        {loading && <div>Loading...</div>} {/* Show loading indicator */}
+                        <button className={"button-style"} type="submit" disabled={loading}>Create Account</button>
+                    </form>
                 </div>
-                <div>
-                    <label>Email</label>
-                    <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>First name</label>
-                    <input
-                        type="text"
-                        name="first_name"
-                        value={formData.first_name}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Last name</label>
-                    <input
-                        type="text"
-                        name="last_name"
-                        value={formData.last_name}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Password</label>
-                    <input
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Confirm Password</label>
-                    <input
-                        type="password"
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                    />
-                </div>
-                {error && <div>{error}</div>} {/* Show error message */}
-                {loading && <div>Loading...</div>} {/* Show loading indicator */}
-                <button type="submit" disabled={loading}>Create Account</button>
-            </form>
+            </div>
         </div>
     );
 };

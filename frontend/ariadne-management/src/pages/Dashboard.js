@@ -10,17 +10,29 @@ function Dashboard() {
     const handleCreateTeam = (e) => {
         e.preventDefault();
 
+        const token = localStorage.getItem('authToken'); // Get the token from localStorage
+
         // API call to create a team
         axios
-            .post('http://localhost:8080/createTeam', { team_name: teamName })
+            .post(
+                'http://localhost:8080/createTeam',
+                { team_name: teamName },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}` // Add token to the Authorization header
+                    }
+                }
+            )
             .then(response => {
                 console.log('Team created successfully:', response.data);
                 setShowModal(false);  // Close the modal after successful creation
             })
             .catch(error => {
-                console.error('Error creating team:', error);
+                console.error('Error creating team:', error.response ? error.response.data : error);
             });
     };
+
+
 
     return (
         <div>

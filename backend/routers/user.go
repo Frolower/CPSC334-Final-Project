@@ -1,4 +1,4 @@
-package services
+package routers
 
 import (
 	"Ariadne_Management/models"

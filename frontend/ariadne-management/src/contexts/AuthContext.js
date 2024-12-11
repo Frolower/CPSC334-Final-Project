@@ -58,8 +58,46 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    // Function to create a team
+    const createTeam = async (teamData) => {
+        const token = localStorage.getItem('authToken'); // Get the JWT token from localStorage
+
+        if (!token) {
+            setError('No token found, please log in.');
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await fetch('http://localhost:8080/createTeam', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`, // Include the JWT token here
+                },
+                body: JSON.stringify(teamData),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Successfully created the team, handle success
+                console.log('Team created successfully:', data);
+            } else {
+                // Handle errors
+                setError(data.error || 'Failed to create team');
+            }
+        } catch (err) {
+            setError('An error occurred. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading, error }}>
+        <AuthContext.Provider value={{ user, login, logout, createTeam, loading, error }}>
             {children}
         </AuthContext.Provider>
     );

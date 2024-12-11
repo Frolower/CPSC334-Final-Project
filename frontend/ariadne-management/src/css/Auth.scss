@@ -1,0 +1,93 @@
+@use "style";
+
+body {
+  height: 100vh;
+  background-color: style.$dark-bg-color;
+}
+
+h1, h2, h3 {
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  all: unset;
+}
+
+input {
+  all: unset;
+}
+
+.link {
+  text-decoration: none;
+}
+
+nav {
+  padding: 20px;
+  text-align: start;
+  justify-content: center;
+  position: fixed;
+  background-color: style.$primary-color;
+  width: 100%;
+}
+
+.logo {
+  color: style.$light-text-color;
+}
+
+.content {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-container {
+  border-radius: 25px;
+  padding: 25px;
+  background-color: style.$card-dark-bg;
+  color: style.$light-text-color;
+}
+
+.form-container h2 {
+  margin-bottom: 20px;
+}
+
+.input-content {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+label {
+  font-size: 20px;
+}
+
+.form-input {
+  height: 25px;
+  width: 300px;
+  font-size: 18px;
+  color: style.$dark-text-color;
+  border: 1px solid style.$card-light-bg;
+  border-radius: 5px;
+  background-color: style.$card-light-bg;
+  padding-left: 5px;
+}
+
+.form-input:focus {
+  border-color: style.$primary-color;
+}
+
+.button-style {
+  background-color: style.$card-light-bg;
+  color: style.$dark-text-color;
+  font-size: 18px;
+  border-radius: 5px;
+  padding: 6px;
+  transition: background-color 0.3s;
+}
+
+.button-style:hover {
+  background-color: lightgray;
+  cursor: pointer;
+}

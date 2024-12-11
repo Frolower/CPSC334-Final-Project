@@ -6,11 +6,15 @@ import (
 	"log"
 )
 
+// CreateTeam creates a team
 func CreateTeam(db *sql.DB, team *models.Team) error {
-	query := `INSERT INTO teams (team_id, user_id, team_name) VALUES ($1, $2, $3)`
-	result, err := db.Exec(query, team.Team_ID, team.User_ID, team.Team_name)
-	log.Println(result)
-	return err
+	query := `INSERT INTO teams (user_id, team_name) VALUES ($1, $2)`
+	_, err := db.Exec(query, team.User_ID, team.Team_name)
+	if err != nil {
+		log.Printf("Error inserting team into database: %v", err)
+		return err
+	}
+	return nil
 }
 
 // GetTeamsByUserID retrieves all teams associated with a user

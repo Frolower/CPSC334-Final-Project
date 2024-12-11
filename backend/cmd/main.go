@@ -1,7 +1,8 @@
 package main
 
 import (
-	routers "Ariadne_Management/routers"
+	"Ariadne_Management/routers"
+	servicies "Ariadne_Management/services"
 	"database/sql"
 	"fmt"
 	"log"
@@ -56,13 +57,22 @@ func main() {
 	// Initialize the Gin router
 	r := gin.Default()
 
-	// Enable CORS for all routes
-	r.Use(cors.Default()) // This allows all domains, you can customize it as needed
+	// Enable CORS for all routes and allow the 'Authorization' header
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"}, // Allow frontend origin
+		AllowMethods:     []string{"GET", "POST", "OPTIONS", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"}, // Allow 'Authorization' header
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           24 * 3600, // 24 hours
+	}))
 
 	// Register routes
 	r.POST("/signup", routers.RegisterUser(db))
-	r.POST("/createTeam", routers.CreateTeam(db))
 	r.POST("/login", routers.LoginUser(db))
+
+	// Protected route: Apply the JWT middleware to `/createTeam`
+	r.POST("/createTeam", servicies.AuthenticateJWT(), routers.CreateTeam(db))
 
 	// Run the server on port 8080
 	r.Run(":8080")
