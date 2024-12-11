@@ -36,9 +36,6 @@ func main() {
 	// Construct the database URL using the components
 	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=require", dbUser, dbPassword, dbHost, dbPort, dbName)
 
-	// For debugging: print out the connection string (be careful with this in production)
-	fmt.Println("Database URL:", dbURL)
-
 	// Open the database connection
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
@@ -59,20 +56,19 @@ func main() {
 
 	// Enable CORS for all routes and allow the 'Authorization' header
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"}, // Allow frontend origin
+		AllowOrigins:     []string{"http://localhost:3000"},
 		AllowMethods:     []string{"GET", "POST", "OPTIONS", "PUT", "DELETE"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"}, // Allow 'Authorization' header
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           24 * 3600, // 24 hours
 	}))
 
-	// Register routes
 	r.POST("/signup", routers.RegisterUser(db))
 	r.POST("/login", routers.LoginUser(db))
 
-	// Protected route: Apply the JWT middleware to `/createTeam`
 	r.POST("/createTeam", servicies.AuthenticateJWT(), routers.CreateTeam(db))
+	r.GET("/getTeams", servicies.AuthenticateJWT(), routers.GetUserTeams(db))
 
 	// Run the server on port 8080
 	r.Run(":8080")

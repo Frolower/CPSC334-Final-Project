@@ -6,13 +6,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 )
 
-// JWT Secret Key (you should keep this key secret and store it securely)
-var jwtSecret = []byte("yourSecretKey")
+// JWT Secret Key from the .env
+var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
 // GenerateJWT generates a JWT token for a user
 func GenerateJWT(user *models.User) (string, error) {
@@ -22,7 +23,7 @@ func GenerateJWT(user *models.User) (string, error) {
 	// Create the JWT claims, including user ID in the claims
 	claims := &jwt.RegisteredClaims{
 		Subject:   user.Username,
-		ID:        strconv.Itoa(user.ID), // Store user ID in the ID field
+		ID:        strconv.Itoa(user.ID),
 		ExpiresAt: jwt.NewNumericDate(expirationTime),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 	}

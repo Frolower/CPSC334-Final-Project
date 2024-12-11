@@ -1,64 +1,72 @@
-import React, { useState } from 'react';
-import Modal from '../components/Modal';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import TeamCard from '../components/TeamCard'; // TeamCard component
+import Modal from '../components/Modal';
 
 function Dashboard() {
+    const [teams, setTeams] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [teamName, setTeamName] = useState('');
 
-    // Function to handle form submission
-    const handleCreateTeam = (e) => {
+    // Fetch teams on component mount
+    useEffect(() => {
+        const fetchTeams = async () => {
+            const token = localStorage.getItem('authToken'); // Get the token from localStorage
+            try {
+                const response = await axios.get('http://localhost:8080/getTeams', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                setTeams(response.data.teams); // Set teams from the API response
+            } catch (error) {
+                console.error('Error fetching teams:', error.response ? error.response.data : error);
+            }
+        };
+
+        fetchTeams();
+    }, []);
+
+    const handleCreateTeam = async (e) => {
         e.preventDefault();
+        const token = localStorage.getItem('authToken');
 
-        const token = localStorage.getItem('authToken'); // Get the token from localStorage
-
-        // API call to create a team
-        axios
-            .post(
+        try {
+            const response = await axios.post(
                 'http://localhost:8080/createTeam',
                 { team_name: teamName },
                 {
                     headers: {
-                        'Authorization': `Bearer ${token}` // Add token to the Authorization header
-                    }
+                        Authorization: `Bearer ${token}`,
+                    },
                 }
-            )
-            .then(response => {
-                console.log('Team created successfully:', response.data);
-                setShowModal(false);  // Close the modal after successful creation
-            })
-            .catch(error => {
-                console.error('Error creating team:', error.response ? error.response.data : error);
-            });
+            );
+            setTeams([...teams, response.data.team]); // Add the newly created team to the list
+            setShowModal(false); // Close modal
+        } catch (error) {
+            console.error('Error creating team:', error.response ? error.response.data : error);
+        }
     };
-
-
 
     return (
         <div>
             <h1>Dashboard</h1>
-
-            {/* Button to open modal */}
             <button onClick={() => setShowModal(true)}>Create Team</button>
-
-            {/* Modal for creating team */}
-            <Modal
-                showModal={showModal}
-                setShowModal={setShowModal}
-                handleSubmit={handleCreateTeam}
-            >
+            <Modal showModal={showModal} setShowModal={setShowModal} handleSubmit={handleCreateTeam}>
                 <h2>Create Team</h2>
-                <div>
-                    <label htmlFor="teamName">Team Name:</label>
-                    <input
-                        type="text"
-                        id="teamName"
-                        value={teamName}
-                        onChange={(e) => setTeamName(e.target.value)}
-                        required
-                    />
-                </div>
+                <input
+                    type="text"
+                    value={teamName}
+                    onChange={(e) => setTeamName(e.target.value)}
+                    placeholder="Enter team name"
+                    required
+                />
             </Modal>
+            <div className="team-grid">
+                {teams.map((team) => (
+                    <TeamCard key={team.team_id} team={team} />
+                ))}
+            </div>
         </div>
     );
 }
