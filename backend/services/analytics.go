@@ -1,4 +1,3 @@
-// services/analytics.go (example)
 package services
 
 import (

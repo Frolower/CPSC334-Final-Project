@@ -1,4 +1,3 @@
-// services/part.go
 package services
 
 import (

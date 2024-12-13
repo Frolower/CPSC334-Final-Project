@@ -1,4 +1,3 @@
-// routers/analytics.go (example for an analytics endpoint)
 package routers
 
 import (

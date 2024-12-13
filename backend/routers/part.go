@@ -1,4 +1,3 @@
-// routers/part.go
 package routers
 
 import (

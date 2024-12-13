@@ -1,4 +1,3 @@
-// services/team.go
 package services
 
 import (

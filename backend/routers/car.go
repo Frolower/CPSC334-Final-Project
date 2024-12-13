@@ -1,4 +1,3 @@
-// routers/car.go
 package routers
 
 import (
