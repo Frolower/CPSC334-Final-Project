@@ -7,10 +7,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 // CreateTeam handles creating a team for an authenticated user
-func CreateTeam(db *sql.DB) gin.HandlerFunc {
+func CreateTeamHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get the Authorization header
 		tokenString := c.GetHeader("Authorization")
@@ -60,7 +61,7 @@ func CreateTeam(db *sql.DB) gin.HandlerFunc {
 }
 
 // GetUserTeams retrieves all teams for the authenticated user
-func GetUserTeams(db *sql.DB) gin.HandlerFunc {
+func GetUserTeamsHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get the Authorization header
 		tokenString := c.GetHeader("Authorization")
@@ -87,5 +88,25 @@ func GetUserTeams(db *sql.DB) gin.HandlerFunc {
 		c.JSON(http.StatusOK, gin.H{
 			"teams": teams,
 		})
+	}
+}
+
+// DeleteTeamHandler
+func DeleteTeamHandler(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userID, _ := c.Get("userID")
+		teamIDStr := c.Param("team_id")
+		teamID, err := strconv.Atoi(teamIDStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid team_id"})
+			return
+		}
+
+		err = services.DeleteTeam(db, userID.(int), teamID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete team"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "Team deleted successfully"})
 	}
 }

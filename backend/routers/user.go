@@ -11,7 +11,7 @@ import (
 )
 
 // RegisterUser handles the user registration logic
-func RegisterUser(db *sql.DB) gin.HandlerFunc {
+func RegisterUserHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var user models.User
 		if err := c.ShouldBindJSON(&user); err != nil {
@@ -54,7 +54,7 @@ func RegisterUser(db *sql.DB) gin.HandlerFunc {
 }
 
 // LoginUser handles user login, verifying credentials and generating a JWT token
-func LoginUser(db *sql.DB) gin.HandlerFunc {
+func LoginUserHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var user models.User
 		// Parse the incoming JSON request into the user struct
