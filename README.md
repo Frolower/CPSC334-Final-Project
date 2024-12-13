@@ -46,7 +46,7 @@ Run <code>npm start</code> to start the frontend on <a href="http://localhost:30
 Navigate into the backend folder <code>cd backend</code>
 </li>
 <li>
-Download dependencies <code>go mod tidy</code>
+Download dependencies <code>go mod download</code>
 </li>
 <li>
 Create a <code>.env</code> file with a following structure <br>
