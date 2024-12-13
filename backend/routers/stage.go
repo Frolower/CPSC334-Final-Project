@@ -9,10 +9,9 @@ import (
 	"strconv"
 )
 
+// Create
 func CreateStageHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, _ := c.Get("userID")
-
 		chIDStr := c.Param("championship_id")
 		chID, err := strconv.Atoi(chIDStr)
 		if err != nil {
@@ -27,7 +26,7 @@ func CreateStageHandler(db *sql.DB) gin.HandlerFunc {
 		}
 		stage.ChampionshipID = chID
 
-		if err := services.CreateStage(db, userID.(int), &stage); err != nil {
+		if err := services.CreateStage(db, &stage); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create stage"})
 			return
 		}
@@ -35,10 +34,10 @@ func CreateStageHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-func GetStagesByUserHandler(db *sql.DB) gin.HandlerFunc {
+// GET all stages
+func GetStagesHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, _ := c.Get("userID")
-		stages, err := services.GetStagesByUser(db, userID.(int))
+		stages, err := services.GetStages(db)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching stages"})
 			return
@@ -47,9 +46,9 @@ func GetStagesByUserHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
+// GET
 func GetStageByIDHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, _ := c.Get("userID")
 		stageIDStr := c.Param("stage_id")
 		stageID, err := strconv.Atoi(stageIDStr)
 		if err != nil {
@@ -57,7 +56,7 @@ func GetStageByIDHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		stage, err := services.GetStageByID(db, userID.(int), stageID)
+		stage, err := services.GetStageByID(db, stageID)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Stage not found"})
 			return
@@ -66,9 +65,9 @@ func GetStageByIDHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
+// Update
 func UpdateStageHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, _ := c.Get("userID")
 		stageIDStr := c.Param("stage_id")
 		stageID, err := strconv.Atoi(stageIDStr)
 		if err != nil {
@@ -82,7 +81,7 @@ func UpdateStageHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		if err := services.UpdateStage(db, userID.(int), stageID, &st); err != nil {
+		if err := services.UpdateStage(db, stageID, &st); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update stage"})
 			return
 		}
@@ -90,9 +89,9 @@ func UpdateStageHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
+// DELETE
 func DeleteStageHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, _ := c.Get("userID")
 		stageIDStr := c.Param("stage_id")
 		stageID, err := strconv.Atoi(stageIDStr)
 		if err != nil {
@@ -100,7 +99,7 @@ func DeleteStageHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		if err := services.DeleteStage(db, userID.(int), stageID); err != nil {
+		if err := services.DeleteStage(db, stageID); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete stage"})
 			return
 		}

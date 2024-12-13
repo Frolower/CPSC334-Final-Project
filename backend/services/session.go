@@ -3,46 +3,28 @@ package services
 import (
 	"Ariadne_Management/models"
 	"database/sql"
-	"fmt"
 )
 
-// CreateSession creates a session linked to a stage
-func CreateSession(db *sql.DB, userID int, session *models.Session) error {
-	var count int
-	err := db.QueryRow(`
-		SELECT COUNT(*) 
-		FROM stages s
-		JOIN championships ch ON s.championship_id=ch.championship_id
-		JOIN teams t ON ch.team_id = t.team_id
-		WHERE s.stage_id=$1 AND t.user_id=$2
-	`, session.StageID, userID).Scan(&count)
-	if err != nil {
-		return err
-	}
-	if count == 0 {
-		return fmt.Errorf("unauthorized or stage not found")
-	}
-
+// CreateSession creates a new session (no user or ownership checks)
+func CreateSession(db *sql.DB, session *models.Session) error {
 	query := `INSERT INTO sessions (stage_id, type, session_date, start_time, weather, temperature, humidity)
-		VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING session_id`
+	          VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING session_id`
 	return db.QueryRow(query, session.StageID, session.Type, session.SessionDate, session.StartTime, session.Weather, session.Temperature, session.Humidity).Scan(&session.SessionID)
 }
 
-func GetSessionsByUser(db *sql.DB, userID int) ([]models.Session, error) {
+// GetSessions retrieves all sessions (no user filtering)
+func GetSessions(db *sql.DB) ([]models.Session, error) {
 	var sessions []models.Session
 	query := `
-		SELECT se.session_id, se.stage_id, se.type, se.session_date, se.start_time, se.weather, se.temperature, se.humidity
-		FROM sessions se
-		JOIN stages s ON se.stage_id = s.stage_id
-		JOIN championships ch ON s.championship_id = ch.championship_id
-		JOIN teams t ON ch.team_id = t.team_id
-		WHERE t.user_id = $1
+		SELECT session_id, stage_id, type, session_date, start_time, weather, temperature, humidity
+		FROM sessions
 	`
-	rows, err := db.Query(query, userID)
+	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var sess models.Session
 		if err := rows.Scan(&sess.SessionID, &sess.StageID, &sess.Type, &sess.SessionDate, &sess.StartTime, &sess.Weather, &sess.Temperature, &sess.Humidity); err != nil {
@@ -53,55 +35,31 @@ func GetSessionsByUser(db *sql.DB, userID int) ([]models.Session, error) {
 	return sessions, nil
 }
 
-func GetSessionByID(db *sql.DB, userID, sessionID int) (*models.Session, error) {
+// GetSessionByID retrieves a single session by ID
+func GetSessionByID(db *sql.DB, sessionID int) (*models.Session, error) {
 	var sess models.Session
 	query := `
-		SELECT se.session_id, se.stage_id, se.type, se.session_date, se.start_time, se.weather, se.temperature, se.humidity
-		FROM sessions se
-		JOIN stages s ON se.stage_id = s.stage_id
-		JOIN championships ch ON s.championship_id = ch.championship_id
-		JOIN teams t ON ch.team_id = t.team_id
-		WHERE se.session_id=$1 AND t.user_id=$2
+		SELECT session_id, stage_id, type, session_date, start_time, weather, temperature, humidity
+		FROM sessions
+		WHERE session_id=$1
 	`
-	err := db.QueryRow(query, sessionID, userID).Scan(&sess.SessionID, &sess.StageID, &sess.Type, &sess.SessionDate, &sess.StartTime, &sess.Weather, &sess.Temperature, &sess.Humidity)
+	err := db.QueryRow(query, sessionID).Scan(&sess.SessionID, &sess.StageID, &sess.Type, &sess.SessionDate, &sess.StartTime, &sess.Weather, &sess.Temperature, &sess.Humidity)
 	if err != nil {
 		return nil, err
 	}
 	return &sess, nil
 }
 
-func UpdateSession(db *sql.DB, userID, sessionID int, session *models.Session) error {
-	var count int
-	err := db.QueryRow(`
-		SELECT COUNT(*) 
-		FROM sessions se
-		JOIN stages s ON se.stage_id=s.stage_id
-		JOIN championships ch ON s.championship_id=ch.championship_id
-		JOIN teams t ON ch.team_id=t.team_id
-		WHERE se.session_id=$1 AND t.user_id=$2
-	`, sessionID, userID).Scan(&count)
-	if err != nil {
-		return err
-	}
-	if count == 0 {
-		return fmt.Errorf("unauthorized or session not found")
-	}
-
+// UpdateSession updates a session
+func UpdateSession(db *sql.DB, sessionID int, session *models.Session) error {
 	query := `UPDATE sessions SET type=$1, session_date=$2, start_time=$3, weather=$4, temperature=$5, humidity=$6 WHERE session_id=$7`
-	_, err = db.Exec(query, session.Type, session.SessionDate, session.StartTime, session.Weather, session.Temperature, session.Humidity, sessionID)
+	_, err := db.Exec(query, session.Type, session.SessionDate, session.StartTime, session.Weather, session.Temperature, session.Humidity, sessionID)
 	return err
 }
 
-func DeleteSession(db *sql.DB, userID, sessionID int) error {
-	query := `
-		DELETE FROM sessions
-		USING stages, championships, teams
-		WHERE sessions.stage_id = stages.stage_id
-		AND stages.championship_id = championships.championship_id
-		AND championships.team_id = teams.team_id
-		AND teams.user_id = $1
-		AND sessions.session_id = $2
-	`
-	_, err := db.Exec(query, userID, sessionID)
+// DeleteSession deletes a session
+func DeleteSession(db *sql.DB, sessionID int) error {
+	query := `DELETE FROM sessions WHERE session_id=$1`
+	_, err := db.Exec(query, sessionID)
 	return err
 }

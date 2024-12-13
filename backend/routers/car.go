@@ -10,10 +10,9 @@ import (
 	"strconv"
 )
 
-// AssignCarToTeamHandler assigns a car to a team
+// POST /assignCarToTeam/:team_id
 func AssignCarToTeamHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, _ := c.Get("userID")
 		teamIDStr := c.Param("team_id")
 		teamID, err := strconv.Atoi(teamIDStr)
 		if err != nil {
@@ -27,7 +26,7 @@ func AssignCarToTeamHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		err = services.AssignCarToTeam(db, userID.(int), teamID, &car)
+		err = services.AssignCarToTeam(db, teamID, &car)
 		if err != nil {
 			log.Printf("Error assigning car to team: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not assign car to team"})
@@ -38,12 +37,11 @@ func AssignCarToTeamHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-// DeleteCarHandler
+// DELETE /deleteCar/:chassis_number
 func DeleteCarHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, _ := c.Get("userID")
 		chassisNumber := c.Param("chassis_number")
-		err := services.DeleteCar(db, userID.(int), chassisNumber)
+		err := services.DeleteCar(db, chassisNumber)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete car"})
 			return
@@ -52,11 +50,11 @@ func DeleteCarHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-// GetCarsByUserHandler
+// GET /getCarsByUser
+// Since we're removing ownership checks, this now returns all cars
 func GetCarsByUserHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, _ := c.Get("userID")
-		cars, err := services.GetCarsByUser(db, userID.(int))
+		cars, err := services.GetCars(db)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not fetch cars"})
 			return

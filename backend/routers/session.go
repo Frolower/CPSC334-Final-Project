@@ -9,9 +9,9 @@ import (
 	"strconv"
 )
 
+// Create
 func CreateSessionHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, _ := c.Get("userID")
 		stageIDStr := c.Param("stage_id")
 		stageID, err := strconv.Atoi(stageIDStr)
 		if err != nil {
@@ -26,7 +26,7 @@ func CreateSessionHandler(db *sql.DB) gin.HandlerFunc {
 		}
 		sess.StageID = stageID
 
-		if err := services.CreateSession(db, userID.(int), &sess); err != nil {
+		if err := services.CreateSession(db, &sess); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create session"})
 			return
 		}
@@ -34,10 +34,10 @@ func CreateSessionHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-func GetSessionsByUserHandler(db *sql.DB) gin.HandlerFunc {
+// GET all sessions
+func GetSessionsHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, _ := c.Get("userID")
-		sessions, err := services.GetSessionsByUser(db, userID.(int))
+		sessions, err := services.GetSessions(db)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching sessions"})
 			return
@@ -46,9 +46,9 @@ func GetSessionsByUserHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
+// GET
 func GetSessionByIDHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, _ := c.Get("userID")
 		sessionIDStr := c.Param("session_id")
 		sessionID, err := strconv.Atoi(sessionIDStr)
 		if err != nil {
@@ -56,7 +56,7 @@ func GetSessionByIDHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		sess, err := services.GetSessionByID(db, userID.(int), sessionID)
+		sess, err := services.GetSessionByID(db, sessionID)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Session not found"})
 			return
@@ -65,9 +65,9 @@ func GetSessionByIDHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
+// Update
 func UpdateSessionHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, _ := c.Get("userID")
 		sessionIDStr := c.Param("session_id")
 		sessionID, err := strconv.Atoi(sessionIDStr)
 		if err != nil {
@@ -81,7 +81,7 @@ func UpdateSessionHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		if err := services.UpdateSession(db, userID.(int), sessionID, &sess); err != nil {
+		if err := services.UpdateSession(db, sessionID, &sess); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update session"})
 			return
 		}
@@ -89,9 +89,9 @@ func UpdateSessionHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
+// DELETE
 func DeleteSessionHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, _ := c.Get("userID")
 		sessionIDStr := c.Param("session_id")
 		sessionID, err := strconv.Atoi(sessionIDStr)
 		if err != nil {
@@ -99,7 +99,7 @@ func DeleteSessionHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		if err := services.DeleteSession(db, userID.(int), sessionID); err != nil {
+		if err := services.DeleteSession(db, sessionID); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete session"})
 			return
 		}

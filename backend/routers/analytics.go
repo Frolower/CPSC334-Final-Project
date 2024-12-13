@@ -1,32 +1,64 @@
 package routers
 
 import (
-	"Ariadne_Management/services"
+	services "Ariadne_Management/services"
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
-// GetAvgPilotFinishPositionHandler
-func GetAvgPilotFinishPositionHandler(db *sql.DB) gin.HandlerFunc {
+// GetFastestLapHandler retrieves the fastest lap for a given session
+func GetFastestLapHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		documentNumberStr := c.Param("document_number")
-		firstName := c.Param("first_name")
-		lastName := c.Param("last_name")
-
-		documentNumber, err := strconv.Atoi(documentNumberStr)
+		sessionIDStr := c.Param("session_id")
+		sessionID, err := strconv.Atoi(sessionIDStr)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid document_number"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid session_id"})
 			return
 		}
 
-		avg, err := services.GetAveragePilotFinishPosition(db, documentNumber, firstName, lastName)
+		lapNumber, lapTime, err := services.GetFastestLap(db, sessionID)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not compute average"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve fastest lap"})
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"average_finish_position": avg})
+		c.JSON(http.StatusOK, gin.H{
+			"lap_number": lapNumber,
+			"lap_time":   lapTime,
+		})
+	}
+}
+
+// GetAverageLapHandler retrieves the average lap time for a given session
+func GetAverageLapHandler(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		sessionIDStr := c.Param("session_id")
+		sessionID, err := strconv.Atoi(sessionIDStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid session_id"})
+			return
+		}
+
+		avgSeconds, err := services.GetAverageLapTime(db, sessionID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not compute average lap time"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"average_lap_time_seconds": avgSeconds})
+	}
+}
+
+// GetPartsCountForCarHandler retrieves the number of parts assigned to a given car
+func GetPartsCountForCarHandler(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		chassisNumber := c.Param("chassis_number")
+		count, err := services.GetPartsCountForCar(db, chassisNumber)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve parts count"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"parts_count": count})
 	}
 }

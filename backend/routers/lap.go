@@ -9,9 +9,9 @@ import (
 	"strconv"
 )
 
+// CreateLapHandler creates a new lap for a given session
 func CreateLapHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, _ := c.Get("userID")
 		sessionIDStr := c.Param("session_id")
 		sessionID, err := strconv.Atoi(sessionIDStr)
 		if err != nil {
@@ -24,9 +24,9 @@ func CreateLapHandler(db *sql.DB) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 			return
 		}
-		lap.SessionID = sessionID
 
-		if err := services.CreateLap(db, userID.(int), &lap); err != nil {
+		lap.SessionID = sessionID
+		if err := services.CreateLap(db, &lap); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create lap"})
 			return
 		}
@@ -34,10 +34,17 @@ func CreateLapHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-func GetLapsByUserHandler(db *sql.DB) gin.HandlerFunc {
+// GetLapsBySessionHandler retrieves all laps for a given session
+func GetLapsBySessionHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, _ := c.Get("userID")
-		laps, err := services.GetLapsByUser(db, userID.(int))
+		sessionIDStr := c.Param("session_id")
+		sessionID, err := strconv.Atoi(sessionIDStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid session ID"})
+			return
+		}
+
+		laps, err := services.GetLapsBySessionID(db, sessionID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not fetch laps"})
 			return
@@ -46,9 +53,9 @@ func GetLapsByUserHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
+// GetLapByKeyHandler retrieves a single lap specified by session_id and lap_number
 func GetLapByKeyHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, _ := c.Get("userID")
 		sessionIDStr := c.Param("session_id")
 		lapNumberStr := c.Param("lap_number")
 
@@ -64,7 +71,7 @@ func GetLapByKeyHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		lap, err := services.GetLapByKey(db, userID.(int), sessionID, lapNumber)
+		lap, err := services.GetLapByKey(db, sessionID, lapNumber)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Lap not found"})
 			return
@@ -73,9 +80,9 @@ func GetLapByKeyHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
+// UpdateLapHandler updates a lap's lap_time field
 func UpdateLapHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, _ := c.Get("userID")
 		sessionIDStr := c.Param("session_id")
 		lapNumberStr := c.Param("lap_number")
 
@@ -99,7 +106,7 @@ func UpdateLapHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		if err := services.UpdateLap(db, userID.(int), sessionID, lapNumber, data.LapTime); err != nil {
+		if err := services.UpdateLap(db, sessionID, lapNumber, data.LapTime); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update lap"})
 			return
 		}
@@ -107,9 +114,9 @@ func UpdateLapHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
+// DeleteLapHandler deletes a lap
 func DeleteLapHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, _ := c.Get("userID")
 		sessionIDStr := c.Param("session_id")
 		lapNumberStr := c.Param("lap_number")
 
@@ -125,7 +132,7 @@ func DeleteLapHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		if err := services.DeleteLap(db, userID.(int), sessionID, lapNumber); err != nil {
+		if err := services.DeleteLap(db, sessionID, lapNumber); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete lap"})
 			return
 		}

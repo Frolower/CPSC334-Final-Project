@@ -3,25 +3,11 @@ package services
 import (
 	"Ariadne_Management/models"
 	"database/sql"
-	"fmt"
 	"log"
 )
 
-func AssignPartToCar(db *sql.DB, userID int, chassisNumber string, part *models.Part) error {
-	queryOwnership := `
-        SELECT COUNT(*) 
-        FROM cars c 
-        JOIN teams t ON c.team_id = t.team_id 
-        WHERE c.chassis_number = $1 AND t.user_id = $2
-    `
-	var count int
-	if err := db.QueryRow(queryOwnership, chassisNumber, userID).Scan(&count); err != nil {
-		return err
-	}
-	if count == 0 {
-		return fmt.Errorf("unauthorized or car not found")
-	}
-
+// AssignPartToCar inserts a part record for a given chassis_number
+func AssignPartToCar(db *sql.DB, chassisNumber string, part *models.Part) error {
 	query := `INSERT INTO parts (part_id, quantity, chassis_number) VALUES ($1, $2, $3)`
 	_, err := db.Exec(query, part.PartID, part.Quantity, chassisNumber)
 	if err != nil {
@@ -31,29 +17,18 @@ func AssignPartToCar(db *sql.DB, userID int, chassisNumber string, part *models.
 	return nil
 }
 
-func DeletePart(db *sql.DB, userID int, partID string) error {
-	query := `
-		DELETE FROM parts 
-		USING cars, teams 
-		WHERE parts.chassis_number = cars.chassis_number 
-		AND cars.team_id = teams.team_id
-		AND teams.user_id = $1
-		AND parts.part_id = $2
-	`
-	_, err := db.Exec(query, userID, partID)
+// DeletePart deletes a part by part_id
+func DeletePart(db *sql.DB, partID string) error {
+	query := `DELETE FROM parts WHERE part_id = $1`
+	_, err := db.Exec(query, partID)
 	return err
 }
 
-func GetPartsByUser(db *sql.DB, userID int) ([]models.Part, error) {
+// GetParts retrieves all parts (no user filtering)
+func GetParts(db *sql.DB) ([]models.Part, error) {
 	var parts []models.Part
-	query := `
-		SELECT p.part_id, p.quantity, p.chassis_number
-		FROM parts p
-		JOIN cars c ON p.chassis_number = c.chassis_number
-		JOIN teams t ON c.team_id = t.team_id
-		WHERE t.user_id = $1
-	`
-	rows, err := db.Query(query, userID)
+	query := `SELECT part_id, quantity, chassis_number FROM parts`
+	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
 	}
