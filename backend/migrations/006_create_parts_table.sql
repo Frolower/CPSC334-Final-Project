@@ -1,6 +1,6 @@
 CREATE TABLE parts (
-    part_id VARCHAR(255) NOT NULL PRIMARY KEY,
+    part_id VARCHAR(255) PRIMARY KEY,
     quantity INT NOT NULL,
-    chassis_number VARCHAR(255) REFERENCES cars (chassis_number),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    chassis_number VARCHAR(255) NOT NULL REFERENCES cars (chassis_number),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
