@@ -35,19 +35,28 @@ func GetStages(db *sql.DB) ([]models.Stage, error) {
 	return stages, nil
 }
 
-// GetStageByID retrieves a single stage by ID
-func GetStageByID(db *sql.DB, stageID int) (*models.Stage, error) {
-	var st models.Stage
+// GetStagesByChampionshipID retrieves all stages for a given championship_id
+func GetStagesByChampionshipID(db *sql.DB, championshipID int) ([]models.Stage, error) {
+	var stages []models.Stage
 	query := `
 		SELECT stage_id, stage_number, championship_id, track, start_date, end_date
 		FROM stages
-		WHERE stage_id=$1
+		WHERE championship_id = $1
 	`
-	err := db.QueryRow(query, stageID).Scan(&st.StageID, &st.StageNumber, &st.ChampionshipID, &st.Track, &st.StartDate, &st.EndDate)
+	rows, err := db.Query(query, championshipID)
 	if err != nil {
 		return nil, err
 	}
-	return &st, nil
+	defer rows.Close()
+
+	for rows.Next() {
+		var st models.Stage
+		if err := rows.Scan(&st.StageID, &st.StageNumber, &st.ChampionshipID, &st.Track, &st.StartDate, &st.EndDate); err != nil {
+			return nil, err
+		}
+		stages = append(stages, st)
+	}
+	return stages, nil
 }
 
 // UpdateStage updates a stage

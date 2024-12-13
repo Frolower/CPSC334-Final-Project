@@ -12,7 +12,7 @@ func CreateChampionship(db *sql.DB, champ *models.Championship) error {
 	return db.QueryRow(query, champ.TeamID, champ.ChampionshipName, champ.TeamStandings).Scan(&champ.ChampionshipID)
 }
 
-// GetChampionships retrieves all championships (no user filtering)
+// GetChampionships retrieves all championships
 func GetChampionships(db *sql.DB) ([]models.Championship, error) {
 	var champs []models.Championship
 	query := `SELECT championship_id, team_id, championship_name, team_standings FROM championships`
@@ -32,16 +32,28 @@ func GetChampionships(db *sql.DB) ([]models.Championship, error) {
 	return champs, nil
 }
 
-// GetChampionshipByID retrieves a single championship by ID
-func GetChampionshipByID(db *sql.DB, championshipID int) (*models.Championship, error) {
-	var c models.Championship
-	query := `SELECT championship_id, team_id, championship_name, team_standings
-	          FROM championships WHERE championship_id=$1`
-	err := db.QueryRow(query, championshipID).Scan(&c.ChampionshipID, &c.TeamID, &c.ChampionshipName, &c.TeamStandings)
+// GetChampionshipsByTeamID retrieves all championships that belong to a given team
+func GetChampionshipsByTeamID(db *sql.DB, teamID int) ([]models.Championship, error) {
+	var champs []models.Championship
+	query := `
+		SELECT championship_id, team_id, championship_name, team_standings
+		FROM championships
+		WHERE team_id = $1
+	`
+	rows, err := db.Query(query, teamID)
 	if err != nil {
 		return nil, err
 	}
-	return &c, nil
+	defer rows.Close()
+
+	for rows.Next() {
+		var c models.Championship
+		if err := rows.Scan(&c.ChampionshipID, &c.TeamID, &c.ChampionshipName, &c.TeamStandings); err != nil {
+			return nil, err
+		}
+		champs = append(champs, c)
+	}
+	return champs, nil
 }
 
 // UpdateChampionship updates a championship

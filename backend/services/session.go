@@ -5,14 +5,14 @@ import (
 	"database/sql"
 )
 
-// CreateSession creates a new session (no user or ownership checks)
+// CreateSession creates a new session
 func CreateSession(db *sql.DB, session *models.Session) error {
 	query := `INSERT INTO sessions (stage_id, type, session_date, start_time, weather, temperature, humidity)
 	          VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING session_id`
 	return db.QueryRow(query, session.StageID, session.Type, session.SessionDate, session.StartTime, session.Weather, session.Temperature, session.Humidity).Scan(&session.SessionID)
 }
 
-// GetSessions retrieves all sessions (no user filtering)
+// GetSessions retrieves all sessions
 func GetSessions(db *sql.DB) ([]models.Session, error) {
 	var sessions []models.Session
 	query := `
@@ -35,19 +35,28 @@ func GetSessions(db *sql.DB) ([]models.Session, error) {
 	return sessions, nil
 }
 
-// GetSessionByID retrieves a single session by ID
-func GetSessionByID(db *sql.DB, sessionID int) (*models.Session, error) {
-	var sess models.Session
+// GetSessionsByStageID retrieves all sessions for a given stage_id
+func GetSessionsByStageID(db *sql.DB, stageID int) ([]models.Session, error) {
+	var sessions []models.Session
 	query := `
 		SELECT session_id, stage_id, type, session_date, start_time, weather, temperature, humidity
 		FROM sessions
-		WHERE session_id=$1
+		WHERE stage_id = $1
 	`
-	err := db.QueryRow(query, sessionID).Scan(&sess.SessionID, &sess.StageID, &sess.Type, &sess.SessionDate, &sess.StartTime, &sess.Weather, &sess.Temperature, &sess.Humidity)
+	rows, err := db.Query(query, stageID)
 	if err != nil {
 		return nil, err
 	}
-	return &sess, nil
+	defer rows.Close()
+
+	for rows.Next() {
+		var sess models.Session
+		if err := rows.Scan(&sess.SessionID, &sess.StageID, &sess.Type, &sess.SessionDate, &sess.StartTime, &sess.Weather, &sess.Temperature, &sess.Humidity); err != nil {
+			return nil, err
+		}
+		sessions = append(sessions, sess)
+	}
+	return sessions, nil
 }
 
 // UpdateSession updates a session

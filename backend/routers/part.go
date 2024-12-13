@@ -4,13 +4,11 @@ import (
 	"Ariadne_Management/models"
 	"Ariadne_Management/services"
 	"database/sql"
-	"log"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
-// POST /assignPartToCar/:chassis_number
+// AssignPartToCarHandler
 func AssignPartToCarHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		chassisNumber := c.Param("chassis_number")
@@ -23,7 +21,6 @@ func AssignPartToCarHandler(db *sql.DB) gin.HandlerFunc {
 
 		err := services.AssignPartToCar(db, chassisNumber, &part)
 		if err != nil {
-			log.Printf("Error assigning part to car: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not assign part to car"})
 			return
 		}
@@ -32,7 +29,7 @@ func AssignPartToCarHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-// DELETE /deletePart/:part_id
+// DeletePartHandler
 func DeletePartHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		partID := c.Param("part_id")
@@ -45,15 +42,36 @@ func DeletePartHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-// GET /getPartsByUser
-// Since we're removing ownership checks, this now returns all parts
-func GetPartsByUserHandler(db *sql.DB) gin.HandlerFunc {
+// GetPartsByCarHandler
+func GetPartsByCarHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		parts, err := services.GetParts(db)
+		chassisNumber := c.Param("chassis_number")
+		parts, err := services.GetPartsByChassisNumber(db, chassisNumber)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not fetch parts"})
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{"parts": parts})
+	}
+}
+
+// UpdatePartHandler
+func UpdatePartHandler(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		partID := c.Param("part_id")
+
+		var part models.Part
+		if err := c.ShouldBindJSON(&part); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+			return
+		}
+
+		err := services.UpdatePart(db, partID, &part)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update part"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "Part updated successfully"})
 	}
 }

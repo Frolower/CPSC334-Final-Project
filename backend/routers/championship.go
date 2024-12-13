@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-// Create a championship
+// CreateChampionshipHandler
 func CreateChampionshipHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var champ models.Championship
@@ -26,7 +26,7 @@ func CreateChampionshipHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-// GET all championships
+// GetChampionshipsHandler
 func GetChampionshipsHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		champs, err := services.GetChampionships(db)
@@ -38,29 +38,29 @@ func GetChampionshipsHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-// GET
-func GetChampionshipByIDHandler(db *sql.DB) gin.HandlerFunc {
+// GetChampionshipsByTeamIDHandler
+func GetChampionshipsByTeamIDHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		chIDStr := c.Param("id")
-		chID, err := strconv.Atoi(chIDStr)
+		teamIDStr := c.Param("team_id")
+		teamID, err := strconv.Atoi(teamIDStr)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid championship ID"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid team ID"})
 			return
 		}
 
-		champ, err := services.GetChampionshipByID(db, chID)
+		champs, err := services.GetChampionshipsByTeamID(db, teamID)
 		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Championship not found"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching championships for team"})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"championship": champ})
+		c.JSON(http.StatusOK, gin.H{"championships": champs})
 	}
 }
 
-// Update
+// UpdateChampionshipHandler
 func UpdateChampionshipHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		chIDStr := c.Param("id")
+		chIDStr := c.Param("championship_id")
 		chID, err := strconv.Atoi(chIDStr)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid championship ID"})
@@ -81,10 +81,10 @@ func UpdateChampionshipHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-// DELETE
+// DeleteChampionshipHandler
 func DeleteChampionshipHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		chIDStr := c.Param("id")
+		chIDStr := c.Param("championship_id")
 		chID, err := strconv.Atoi(chIDStr)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid championship ID"})

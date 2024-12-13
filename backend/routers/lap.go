@@ -53,34 +53,7 @@ func GetLapsBySessionHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-// GetLapByKeyHandler retrieves a single lap specified by session_id and lap_number
-func GetLapByKeyHandler(db *sql.DB) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		sessionIDStr := c.Param("session_id")
-		lapNumberStr := c.Param("lap_number")
-
-		sessionID, err := strconv.Atoi(sessionIDStr)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid session_id"})
-			return
-		}
-
-		lapNumber, err := strconv.Atoi(lapNumberStr)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid lap_number"})
-			return
-		}
-
-		lap, err := services.GetLapByKey(db, sessionID, lapNumber)
-		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Lap not found"})
-			return
-		}
-		c.JSON(http.StatusOK, gin.H{"lap": lap})
-	}
-}
-
-// UpdateLapHandler updates a lap's lap_time field
+// UpdateLapHandler updates a lap
 func UpdateLapHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sessionIDStr := c.Param("session_id")

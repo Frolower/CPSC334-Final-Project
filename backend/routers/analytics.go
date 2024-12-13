@@ -18,15 +18,16 @@ func GetFastestLapHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		lapNumber, lapTime, err := services.GetFastestLap(db, sessionID)
+		lapNumber, lapTime, lapSeconds, err := services.GetFastestLap(db, sessionID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve fastest lap"})
 			return
 		}
 
 		c.JSON(http.StatusOK, gin.H{
-			"lap_number": lapNumber,
-			"lap_time":   lapTime,
+			"lap_number":       lapNumber,
+			"lap_time":         lapTime,
+			"lap_time_seconds": lapSeconds,
 		})
 	}
 }
@@ -60,5 +61,54 @@ func GetPartsCountForCarHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{"parts_count": count})
+	}
+}
+
+// GetTireCountForCarHandler
+func GetTireCountForCarHandler(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		chassisNumber := c.Param("chassis_number")
+		count, err := services.GetTireCountForCar(db, chassisNumber)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve tire count"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"tire_count": count})
+	}
+}
+
+// GetAverageTreadForCarHandler
+func GetAverageTreadForCarHandler(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		chassisNumber := c.Param("chassis_number")
+		avg, err := services.GetAverageTreadForCar(db, chassisNumber)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve average tread"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"average_tread_remaining": avg})
+	}
+}
+
+// GetTiresCountByTreadAndCompoundAndCarHandler
+func GetTiresCountByTreadAndCompoundAndCarHandler(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		chassisNumber := c.Param("chassis_number")
+
+		treadStr := c.Param("tread")
+		tread, err := strconv.ParseFloat(treadStr, 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid tread value"})
+			return
+		}
+
+		compound := c.Param("compound")
+
+		count, err := services.GetTiresCountByTreadAndCompoundAndCar(db, chassisNumber, tread, compound)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve tires count by tread, compound, and car"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"tires_count": count})
 	}
 }

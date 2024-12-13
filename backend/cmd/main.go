@@ -75,48 +75,60 @@ func main() {
 	// Teams
 	auth.POST("/createTeam", routers.CreateTeamHandler(db))
 	auth.GET("/getTeams", routers.GetUserTeamsHandler(db))
+	auth.DELETE("/deleteTeam/:team_id", routers.DeleteTeamHandler(db))
+
+	// Cars
 	auth.POST("/assignCarToTeam/:team_id", routers.AssignCarToTeamHandler(db))
+	auth.GET("/getCars/:team_id", routers.GetCarsByTeamHandler(db))
+	auth.PUT("/updateCar/:chassis_number", routers.UpdateCarHandler(db))
+	auth.DELETE("/deleteCar/:chassis_number", routers.DeleteCarHandler(db))
 
 	// Parts
 	auth.POST("/assignPartToCar/:chassis_number", routers.AssignPartToCarHandler(db))
-
-	// Delete endpoints
-	auth.DELETE("/deleteTeam/:team_id", routers.DeleteTeamHandler(db))
-	auth.DELETE("/deleteCar/:chassis_number", routers.DeleteCarHandler(db))
+	auth.GET("/getPartsByCar/:chassis_number", routers.GetPartsByCarHandler(db))
+	auth.PUT("/updatePart/:part_id", routers.UpdatePartHandler(db))
 	auth.DELETE("/deletePart/:part_id", routers.DeletePartHandler(db))
+
+	// Tires
+	auth.POST("/assignTireToCar/:chassis_number", routers.AssignTireToCarHandler(db))
+	auth.GET("/getTiresByCar/:chassis_number", routers.GetTiresByCarHandler(db))
+	auth.PUT("/updateTire/:tire_id", routers.UpdateTireHandler(db))
 	auth.DELETE("/deleteTire/:tire_id", routers.DeleteTireHandler(db))
+
+	// Championships
+	auth.POST("/createChampionship", routers.CreateChampionshipHandler(db))
+	auth.GET("/getChampionships", routers.GetChampionshipsHandler(db))
+	auth.GET("/getChampionships/:team_id", routers.GetChampionshipsByTeamIDHandler(db))
+	auth.PUT("/updateChampionship/:championship_id", routers.UpdateChampionshipHandler(db))
 	auth.DELETE("/deleteChampionship/:championship_id", routers.DeleteChampionshipHandler(db))
+
+	// Stages
+	auth.POST("/createStage", routers.CreateStageHandler(db))
+	auth.GET("/getStages", routers.GetStagesHandler(db))
+	auth.GET("/getStage/:championship_id", routers.GetStagesByChampionshipIDHandler(db))
+	auth.PUT("/updateStage/:stage_id", routers.UpdateStageHandler(db))
 	auth.DELETE("/deleteStage/:stage_id", routers.DeleteStageHandler(db))
+
+	// Sessions
+	auth.POST("/createSession", routers.CreateSessionHandler(db))
+	auth.GET("/getSessions", routers.GetSessionsHandler(db))
+	auth.GET("/getSession/:stage_id", routers.GetSessionsByStageIDHandler(db))
+	auth.PUT("/updateSession/:session_id", routers.UpdateSessionHandler(db))
 	auth.DELETE("/deleteSession/:session_id", routers.DeleteSessionHandler(db))
-	auth.DELETE("/sessions/:session_id/laps/:lap_number", routers.DeleteLapHandler(db))
 
-	// Get data
-	auth.GET("/getCarsByUser", routers.GetCarsByUserHandler(db))
-	auth.GET("/getPartsByUser", routers.GetPartsByUserHandler(db))
-	auth.GET("/getTiresByUser", routers.GetTiresByUserHandler(db))
-	auth.GET("/getChampionshipsByUser", routers.GetChampionshipsByUserHandler(db))
-	auth.GET("/getStagesByUser", routers.GetStagesByUserHandler(db))
-	auth.GET("/getSessionsByUser", routers.GetSessionsByUserHandler(db))
-	auth.GET("/sessions/:session_id/laps", routers.GetLapsBySessionHandler(db))
-	auth.GET("/sessions/:session_id/laps/:lap_number", routers.GetLapByKeyHandler(db))
+	// Laps
+	auth.POST("/createLap", routers.CreateLapHandler(db))
+	auth.GET("/getLaps/:session_id", routers.GetLapsBySessionHandler(db))
+	auth.PUT("/updateLap/:lap_id", routers.UpdateLapHandler(db))
+	auth.DELETE("/deleteLap/:lap_id", routers.DeleteLapHandler(db))
 
-	auth.GET("/getPilotsByUser", routers.GetPilotsByUserHandler(db))
-	auth.GET("/getStaffByUser", routers.GetStaffByUserHandler(db))
-	auth.GET("/getSetupsByUser", routers.GetSetupsByUserHandler(db))
-	auth.GET("/getParametersByUser", routers.GetParametersByUserHandler(db))
-
-	// Analytics
-	auth.GET("/avgPilotFinishPosition/:document_number/:first_name/:last_name", routers.GetAvgPilotFinishPositionHandler(db))
-	auth.GET("/avgPilotFinishPositionPerStage/:document_number/:first_name/:last_name", routers.GetAvgPilotFinishPositionPerStageHandler(db))
-	auth.GET("/avgCarFinishPosition", routers.GetAvgCarFinishPositionHandler(db))
-	auth.GET("/avgCarFinishPositionPerChampionship", routers.GetAvgCarFinishPositionPerChampionshipHandler(db))
+	// Analysis
 	auth.GET("/analyzeFastestLap/:session_id", routers.GetFastestLapHandler(db))
 	auth.GET("/analyzeAverageLap/:session_id", routers.GetAverageLapHandler(db))
 	auth.GET("/analyzePartsCount/:chassis_number", routers.GetPartsCountForCarHandler(db))
-
-	// Additional Lap Endpoints:
-	auth.POST("/sessions/:session_id/laps", routers.CreateLapHandler(db))
-	auth.PUT("/sessions/:session_id/laps/:lap_number", routers.UpdateLapHandler(db))
+	auth.GET("/getTireCountForCar/:chassis_number", routers.GetTireCountForCarHandler(db))
+	auth.GET("/getAverageTreadForCar/:chassis_number", routers.GetAverageTreadForCarHandler(db))
+	auth.GET("/getTiresCountByTreadAndCompoundAndCar/:chassis_number/:tread/:compound", routers.GetTiresCountByTreadAndCompoundAndCarHandler(db))
 
 	// Run the server on port 8080
 	r.Run(":8080")

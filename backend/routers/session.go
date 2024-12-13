@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-// Create
+// CreateSessionHandler
 func CreateSessionHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		stageIDStr := c.Param("stage_id")
@@ -34,7 +34,7 @@ func CreateSessionHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-// GET all sessions
+// GetSessionsHandler
 func GetSessionsHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sessions, err := services.GetSessions(db)
@@ -46,26 +46,26 @@ func GetSessionsHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-// GET
-func GetSessionByIDHandler(db *sql.DB) gin.HandlerFunc {
+// GetSessionsByStageIDHandler returns all sessions for a given stage_id
+func GetSessionsByStageIDHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		sessionIDStr := c.Param("session_id")
-		sessionID, err := strconv.Atoi(sessionIDStr)
+		stageIDStr := c.Param("stage_id")
+		stageID, err := strconv.Atoi(stageIDStr)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid session ID"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid stage ID"})
 			return
 		}
 
-		sess, err := services.GetSessionByID(db, sessionID)
+		sessions, err := services.GetSessionsByStageID(db, stageID)
 		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Session not found"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching sessions"})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"session": sess})
+		c.JSON(http.StatusOK, gin.H{"sessions": sessions})
 	}
 }
 
-// Update
+// UpdateSessionHandler
 func UpdateSessionHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sessionIDStr := c.Param("session_id")
@@ -89,7 +89,7 @@ func UpdateSessionHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-// DELETE
+// DeleteSessionHandler
 func DeleteSessionHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sessionIDStr := c.Param("session_id")

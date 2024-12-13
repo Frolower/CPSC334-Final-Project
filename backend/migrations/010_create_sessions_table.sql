@@ -5,7 +5,7 @@ CREATE TABLE sessions (
     session_date DATE NOT NULL,
     start_time TIME NOT NULL,
     weather VARCHAR(255) NOT NULL,
-    temperature INT NOT NULL,
-    humidity INT NOT NULL,
+    temperature NUMERIC(3,1) NOT NULL,
+    humidity NUMERIC(3,1) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

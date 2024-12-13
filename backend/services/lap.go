@@ -33,20 +33,7 @@ func GetLapsBySessionID(db *sql.DB, sessionID int) ([]models.Lap, error) {
 	return laps, nil
 }
 
-// GetLapByKey retrieves a single lap
-func GetLapByKey(db *sql.DB, sessionID, lapNumber int) (*models.Lap, error) {
-	var lap models.Lap
-	query := `SELECT lap_time FROM laps WHERE session_id=$1 AND lap_number=$2`
-	err := db.QueryRow(query, sessionID, lapNumber).Scan(&lap.LapTime)
-	if err != nil {
-		return nil, err
-	}
-	lap.SessionID = sessionID
-	lap.LapNumber = lapNumber
-	return &lap, nil
-}
-
-// UpdateLap updates a lap's time
+// UpdateLap updates a laps time
 func UpdateLap(db *sql.DB, sessionID, lapNumber int, newLapTime string) error {
 	query := `UPDATE laps SET lap_time=$1 WHERE session_id=$2 AND lap_number=$3`
 	_, err := db.Exec(query, newLapTime, sessionID, lapNumber)

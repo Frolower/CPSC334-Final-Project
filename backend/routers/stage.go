@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-// Create
+// CreateStageHandler
 func CreateStageHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		chIDStr := c.Param("championship_id")
@@ -34,7 +34,7 @@ func CreateStageHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-// GET all stages
+// GetStagesHandler
 func GetStagesHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		stages, err := services.GetStages(db)
@@ -46,26 +46,26 @@ func GetStagesHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-// GET
-func GetStageByIDHandler(db *sql.DB) gin.HandlerFunc {
+// GetStagesByChampionshipIDHandler retrieves all stages for a given championship_id
+func GetStagesByChampionshipIDHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		stageIDStr := c.Param("stage_id")
-		stageID, err := strconv.Atoi(stageIDStr)
+		chIDStr := c.Param("championship_id")
+		chID, err := strconv.Atoi(chIDStr)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid stage ID"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid championship ID"})
 			return
 		}
 
-		stage, err := services.GetStageByID(db, stageID)
+		stages, err := services.GetStagesByChampionshipID(db, chID)
 		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Stage not found"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching stages"})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"stage": stage})
+		c.JSON(http.StatusOK, gin.H{"stages": stages})
 	}
 }
 
-// Update
+// UpdateStageHandler
 func UpdateStageHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		stageIDStr := c.Param("stage_id")
@@ -89,7 +89,7 @@ func UpdateStageHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-// DELETE
+// DeleteStageHandler
 func DeleteStageHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		stageIDStr := c.Param("stage_id")
