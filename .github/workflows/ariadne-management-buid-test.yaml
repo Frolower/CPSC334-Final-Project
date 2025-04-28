@@ -1,7 +1,7 @@
 name: Ariadne Management Build & Test
 run-name: ${{ github.actor }} is building and testing Ariadne Management
 
-on
+on:
   push:
     branches: [ "main" ]
   pull_request:
