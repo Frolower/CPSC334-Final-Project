@@ -1,0 +1,26 @@
+name: Ariadne Management Build & Test
+run-name: ${{ github.actor }} is building and testing Ariadne Management
+
+on
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y python3 python3-pip lintian debhelper
+
+      - name: Build
+        run: |
+          cd backend/
+          cd cmd/
+          go build -o backend
