@@ -17,7 +17,9 @@ jobs:
       - name: Set up dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y rm -rf /usr/local/go && tar -C /usr/local -xzf go1.24.2.linux-amd64.tar.gz lintian debhelper
+          sudo apt-get install lintian debhelper
+          wget https://go.dev/dl/go1.24.2.linux-amd64.tar.gz
+          sudo tar -C /usr/local -xzf go1.24.2.linux-amd64.tar.gz
           sudo export PATH=$PATH:/usr/local/go/bin
 
       - name: Build
